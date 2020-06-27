@@ -9,6 +9,7 @@ import ai.mayank.iot.service.SyncService;
 import ai.mayank.iot.tables.DeviceSync;
 import ai.mayank.iot.utils.inter_exchange.SocketMessage;
 import ai.mayank.iot.utils.inter_exchange.Status;
+import io.kuzzle.sdk.Kuzzle;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
@@ -41,7 +43,8 @@ public class ClientHandler extends Thread implements IClientHandler{
     protected List<Integer> tos;
     protected Long start;
     protected Queue<SocketMessage> messages = new ConcurrentLinkedQueue<>();
-
+    protected Kuzzle kuzzle = null;
+    
     private Logger log = Logger.getLogger(ClientHandler.class.getName());   
     
     public ClientHandler(String token) {
@@ -66,6 +69,13 @@ public class ClientHandler extends Thread implements IClientHandler{
 			e.printStackTrace();
 			this.close();
 		}
+    }
+    
+    public Kuzzle getKuzzleInstance() {
+    	return this.kuzzle;
+    }
+    public void setKuzzleInstance(Kuzzle kuzzle) {
+    	this.kuzzle = kuzzle;
     }
     
     public void close() {
@@ -135,9 +145,11 @@ public class ClientHandler extends Thread implements IClientHandler{
 		                    else if(msg.message.equals("ack"))
 		                    	continue;
 	                    if(msg.status == Status.SYNC) {
-	                    	Set<String> set = msg.syncData.keySet();
-	                    	for(String key : set) {
-	                    		sync.addSync(new DeviceSync(token, code, key, Float.valueOf(msg.syncData.get(key).toString())));
+	                    	if(kuzzle != null && msg.syncData != null) {
+	                    		kuzzle.getRealtimeController().publish("ior", "drone-data", new ConcurrentHashMap<String, Object>(msg.syncData));
+	                    	}
+	                    	else {
+	                    		log.warning("Kuzzle is NULL");
 	                    	}
 	                    	continue;
 	                    }

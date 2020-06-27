@@ -41,6 +41,16 @@ public class Device {
 	@Column(name = "Current_State")
 	private boolean state;
 	
+	@Column(name = "devicePodIP")
+	private String pod;
+	
+	
+	public String getPod() {
+		return pod;
+	}
+	public void setPod(String pod) {
+		this.pod = pod;
+	}
 	public boolean getState() {
 		return state;
 	}

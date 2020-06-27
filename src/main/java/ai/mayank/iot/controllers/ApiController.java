@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import ai.mayank.iot.tables.SupportedDevices;
 import ai.mayank.iot.tables.User;
 import ai.mayank.iot.tables.SupportedDevices.DeviceType;
 import ai.mayank.iot.utils.inter_exchange.InterMessageProtocol;
+import ai.mayank.iot.utils.inter_exchange.SocketMessage;
 
 @Controller
 @RequestMapping("/api")
@@ -39,7 +41,7 @@ public class ApiController {
 	@GetMapping("/create/user")
 	public ResponseEntity<User> createUser() {
 		System.out.println("HEy There");
-		User u = new User("Mayank","12345","jacob8547black@gmail.com","1234567890");
+		User u = new User("Mayank","12345","admin@ior.com","1234567890");
 		u.setUuid("5a5a83c3-2588-42fb-84bd-fa3129a2ac45");
 		u.setValid(true);
 		
@@ -53,6 +55,7 @@ public class ApiController {
 		return new ResponseEntity<User>(u,HttpStatus.OK);
 	}
 	
+	@CrossOrigin(origins = "*")
 	@PostMapping("/send")
 	public ResponseEntity<InterMessageProtocol> sendMessage(@RequestBody InterMessageProtocol protocol){
 		logger.info(protocol.user);

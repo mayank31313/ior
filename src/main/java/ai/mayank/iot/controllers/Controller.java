@@ -49,8 +49,7 @@ public class Controller {
 		Device device = deviceService.getDevice(tok,code);
 		if(device == null)
 			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-  
-        /*
+ 
         
         /*
 		EndpointHits hit = endpointService.get(device.getUser());
@@ -64,16 +63,18 @@ public class Controller {
 		      */  
         //Server.add(uuid, client);
         //handlers.put(code, client);        
-        
+        /*
         try {
 			Stat stag = executor.keeper.exists("/ior/" + String.format(StringTemplatesFormats.CLIENT_TEMPLATE, tok,code), false);
 			if(stag == null) {
 				executor.createZNode(String.format(StringTemplatesFormats.CLIENT_TEMPLATE, tok,code), "");
 			}
 			else {
-				DevicoZookeeperInfo info = DevicoZookeeperInfo.castString(executor.getLatestData(String.format(StringTemplatesFormats.CLIENT_TEMPLATE,tok,code)));
+				DevicoZookeeperInfo info = DevicoZookeeperInfo.castString(executor.getLatestData(String.format(StringTemplatesFormats.CLIENT_TEMPLATE,tok,code)));				
 				if(info.state) {					
-					return new ResponseEntity<String>(HttpStatus.CONFLICT);
+					Stat s = executor.keeper.exists(String.format("/ior/server/%s",info.podIp),false);	
+					if(s != null)
+						return new ResponseEntity<String>(HttpStatus.CONFLICT);
 				}
 			}
 		} catch (KeeperException | InterruptedException e) {
@@ -81,7 +82,7 @@ public class Controller {
 			e.printStackTrace();
 			return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-        
+        */
         String uuid = UUID.randomUUID().toString();
         SocketVariables var = new SocketVariables(tok, uuid, device.getDeviceId(),to);
         var.setDevice(device);

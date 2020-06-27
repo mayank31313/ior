@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import ai.mayank.iot.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOClient;
+
 import ai.mayank.iot.Sockets.ClientHandler;
 import ai.mayank.iot.config.SocketIO;
 import ai.mayank.iot.utils.inter_exchange.SocketMessage;

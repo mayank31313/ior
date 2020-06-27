@@ -30,6 +30,7 @@ import ai.mayank.iot.service.SocketHandlerService;
 import ai.mayank.iot.service.SupportedDeviceService;
 import ai.mayank.iot.tables.SupportedDevices;
 import ai.mayank.iot.tables.SupportedDevices.DeviceType;
+import io.kuzzle.sdk.Kuzzle;
 
 @Component
 public class Server implements Runnable{
@@ -44,6 +45,10 @@ public class Server implements Runnable{
     private ZookeeperExecutor executor;
     @Autowired
     Environment env;
+    
+    @Autowired
+    private Kuzzle kuzzle;
+    
     
     private static String leaderAddress;
     private static boolean isLeader = false;
@@ -86,10 +91,17 @@ public class Server implements Runnable{
     
 	@PostConstruct
 	public void init() {
-		log.info("Starting server...");
+		log.info("Starting server...");		
+		int port = 8000;
 		try {
-			serverSocket = new ServerSocket(8000);	    
-
+			if(env.containsProperty("IOR_TCP_PORT")) {
+				port = Integer.valueOf(env.getProperty("IOR_TCP_PORT"));
+				log.info(String.format("Configuring Enviroment Supplied TCP Port: %d",port));
+			}else {
+				log.info(String.format("Using default port settings: %d", port));
+			}
+			
+			serverSocket = new ServerSocket(port);
 			server = new Thread(this);
 			server.start();
 			log.info("Server Started...");
@@ -124,6 +136,9 @@ public class Server implements Runnable{
 							ClientHandler cliHandler = (ClientHandler)client;
 							if(!cliHandler.alive()) {
 								removeHandlers.add(cliHandler);
+							}
+							else if(cliHandler.getKuzzleInstance() == null) {
+								cliHandler.setKuzzleInstance(kuzzle);
 							}
 						}
 					}				

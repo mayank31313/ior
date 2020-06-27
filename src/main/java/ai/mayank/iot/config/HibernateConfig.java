@@ -1,7 +1,5 @@
 package ai.mayank.iot.config;
 
-
-
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -29,7 +27,7 @@ public class HibernateConfig {
 	@Bean
 	public DataSource dataSource() {
 	       DriverManagerDataSource dataSource = new DriverManagerDataSource();
-	       dataSource.setDriverClassName(env.getRequiredProperty("JDBC_DRIVER"));
+	       dataSource.setDriverClassName("com.mysql.jdbc.Driver");
 	       dataSource.setUrl( env.getRequiredProperty("DATABASE_URL"));
 	       dataSource.setUsername(env.getRequiredProperty("DATABASE_USER"));
 	       dataSource.setPassword( env.getRequiredProperty("DATABASE_PASSWORD"));
@@ -42,15 +40,15 @@ public class HibernateConfig {
     @Bean
     public LocalSessionFactoryBean getSessionFactory() {    	
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean(); 
-        factoryBean.setDataSource(dataSource());
+        //factoryBean.setDataSource(dataSource());
         Properties p = new Properties();
 
-        p.setProperty("hibernate.connection.driver_class", env.getRequiredProperty("JDBC_DRIVER"));
+        p.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
         p.setProperty("hibernate.c3p0.timeout", "1800");
         p.setProperty("hibernate.c3p0.max_statements", "150");
         p.setProperty("hibernate.c3p0.max_size", "5");
         p.setProperty("hibernate.show_sql","true");
-        p.setProperty("hibernate.hbm2ddl.auto", "update");
+        p.setProperty("hibernate.hbm2ddl.auto", env.getProperty("JDBC_DDL_TYPE", "update"));
         p.setProperty("hibernate.c3p0.acquire_increment", "1");
         p.setProperty("hibernate.connection.password", env.getRequiredProperty("DATABASE_PASSWORD"));
         p.setProperty("hibernate.connection.username", env.getRequiredProperty("DATABASE_USER"));

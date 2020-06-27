@@ -38,9 +38,9 @@ public class ZookeeperDataStore {
 			watcher.setExecutor(executor);	
 			
 			List<String> servers = executor.listChildren("server");
-			for(String  serverName : servers) {
-				String addr = executor.getLatestData("server/" + serverName);
-				serverBindings.put(serverName, addr);
+			for(String  serverIp : servers) {
+				String serverName = executor.getLatestData("server/" + serverIp);
+				serverBindings.put(serverIp, serverName);
 			}
 			
 			List<String> leader_data = executor.listChildren("master");

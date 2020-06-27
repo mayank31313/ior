@@ -1,8 +1,5 @@
 package ai.mayank.iot.config;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -11,86 +8,52 @@ import javax.annotation.PreDestroy;
 
 import org.springframework.stereotype.Component;
 
-import ai.mayank.iot.SocketIOClient;
-import ai.mayank.iot.SocketIOServer;
-import ai.mayank.iot.Sockets.IClientHandler;
-import ai.mayank.iot.Sockets.Server;
-import ai.mayank.iot.Sockets.Devices.TunnelDevice;
+import com.corundumstudio.socketio.AckRequest;
+import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.listener.ConnectListener;
+import com.corundumstudio.socketio.listener.DataListener;
+
 import ai.mayank.iot.utils.inter_exchange.SocketMessage;
 
 
 @Component
 public class SocketIO {
+	public final static ConcurrentHashMap<String, SocketIOClient> clientLists = new ConcurrentHashMap<String, SocketIOClient>();
 	public static final String STATUS = "status";
-	public static final ConcurrentHashMap<String, SocketIOClient> clientLists = new ConcurrentHashMap<String, SocketIOClient>();
 	private Logger log = Logger.getLogger(SocketIO.class.getName());
 	SocketIOServer server;
-	
 	@PostConstruct
 	public void init() {
-		
 		log.info("Starting SocketIO server...");
-		
-		//Configuration config = new Configuration();
-        //config.setHostname("0.0.0.0");
-        //config.setPort(9095);
+		Configuration config = new Configuration();
+        config.setHostname("0.0.0.0");
+        config.setPort(9000);
 
-        server = new SocketIOServer();
-        /*
-        server.addEventListener("init", String.class, new DataListener<String>() {
+        server = new SocketIOServer(config);
+        server.addConnectListener(new ConnectListener() {
+			
 			@Override
-			public void onData(SocketIOClient client, String data, AckRequest ackSender) throws Exception {
-				clientLists.put(data, client);		
-				LinkedHashMap<Integer, IClientHandler> handler = Server.sockets.get(data);
-				if(handler != null) {
-					if(handler.containsKey(4444)) {
-						TunnelDevice device = (TunnelDevice)handler.get(4444);
-						device.setSocketIO(client);
-						if(device.receiver != null) {
-							HashMap map = new HashMap();
-                			map.put("id","receiver");
-                			map.put(STATUS, "Connected");
-                			client.sendEvent(STATUS, map);
-						}
-						if(device.transmitter != null) {
-							HashMap map = new HashMap();
-							map.put("id","transmitter");
-                			map.put(STATUS, "Connected");
-                			client.sendEvent(STATUS, map);
-						}
-					}
-				}
-				log.info("Client Connected " + data );
+			public void onConnect(SocketIOClient client) {
+				clientLists.put(client.getSessionId().toString(), client);
+				log.info("Client Connected " + client.getSessionId().toString());
 			}
 		});
         
-        server.addEventListener("on_receive", SocketMessage.class,new DataListener<SocketMessage>() {
-			@Override
-			public void onData(SocketIOClient client, SocketMessage data, AckRequest ackSender) throws Exception {
-				String token = data.message;
-				LinkedHashMap<Integer,IClientHandler> handler = Server.sockets.get(token);
-				if(handler != null) {
-					if(handler.containsKey(4444)) {
-						TunnelDevice device = (TunnelDevice)handler.get(4444);
-						if(device.receiver != null) {
-							device.sendMessage(data);
-							log.info("Message Sended");
-						}
-						else
-							log.info("Message not sended to client");
-					}
-					else
-						log.info("Key Not Found");
-				}
-				log.info(data.toString());			
-			}
-		});
-		*/
-        //server.start();        
+        server.addEventListener("chatevent", SocketMessage.class, new DataListener<SocketMessage>() {
+            @Override
+            public void onData(SocketIOClient client, SocketMessage data, AckRequest ackRequest) {
+                // broadcast messages to all clients
+                server.getBroadcastOperations().sendEvent("chatevent", data);
+            }
+        });
+
+        //server.start();
 	}
 	
 	@PreDestroy
 	public void destroy() {
-		server.stop();
+		//server.stop();
 	}
 }

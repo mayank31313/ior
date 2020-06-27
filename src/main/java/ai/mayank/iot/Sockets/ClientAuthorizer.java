@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
-import ai.mayank.iot.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOClient;
+
 import ai.mayank.iot.Sockets.Devices.ArduinoDevice;
 import ai.mayank.iot.Sockets.Devices.TunnelDevice;
 import ai.mayank.iot.Sockets.Devices.TunnelDeviceReceiver;
@@ -84,12 +85,9 @@ public class ClientAuthorizer extends Thread{
         else
         	client = new ClientHandler(variables.getToken(), variables.getDeviceId(), Arrays.asList(variables.getTo()));
         
-                                  
-        log.info(client.getToken());
+                                 
         //Server.table.remove(uuid);
-        
         client.setSocket(socket);
-        Server.sockets.put(variables.getToken(),handlers);
         
         try {
         	DevicoZookeeperInfo devInfo = new DevicoZookeeperInfo(Server.getHost(), true);
@@ -148,5 +146,8 @@ public class ClientAuthorizer extends Thread{
         	}
             log.info("Executing Thread");
         }
+        
+        Server.sockets.put(variables.getToken(),handlers);
+        log.info(String.format("Device Registered: %s--%d",client.getToken(),client.getCode()));
 	}
 }

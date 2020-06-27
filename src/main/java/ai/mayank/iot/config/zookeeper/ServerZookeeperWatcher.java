@@ -31,6 +31,7 @@ public class ServerZookeeperWatcher implements Watcher {
 	public void process(WatchedEvent event) {
 		if(event.getPath() == null)
 			return;			
+		
 		if(event.getPath().startsWith("/ior/server/")) {
 			String serverPath = "/ior/server/";
 			String server = event.getPath().substring(serverPath.length());

@@ -16,10 +16,8 @@ ai\mayank\iot\service\DeviceService.class
 ai\mayank\iot\tables\DeviceElement.class
 ai\mayank\iot\tables\Widgets.class
 ai\mayank\iot\Sockets\Devices\TunnelDeviceReceiver.class
-ai\mayank\iot\SocketIOServer.class
 ai\mayank\iot\config\kafka\KafkaConfig.class
 ai\mayank\iot\tables\User.class
 ai\mayank\iot\tables\SupportedDevices.class
 ai\mayank\iot\Application.class
 ai\mayank\iot\service\DeviceElementService.class
-ai\mayank\iot\SocketIOClient.class

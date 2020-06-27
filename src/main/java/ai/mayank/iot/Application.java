@@ -1,9 +1,12 @@
 package ai.mayank.iot;
 
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
@@ -16,8 +19,13 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
+import ai.mayank.iot.Sockets.ClientHandler;
+import ai.mayank.iot.Sockets.IClientHandler;
 import ai.mayank.iot.Sockets.Server;
+import ai.mayank.iot.config.zookeeper.StringTemplatesFormats;
 import ai.mayank.iot.control.ZookeeperExecutor;
+import ai.mayank.iot.proxy.DevicoZookeeperInfo;
+import ai.mayank.iot.proxy.ProxyClient;
 
 
 @EnableAutoConfiguration(exclude = HibernateJpaAutoConfiguration.class)
@@ -28,7 +36,6 @@ public class Application {
 	@Autowired
 	ZookeeperExecutor executor;
 
-	
 	static Logger logger = LoggerFactory.getLogger(Application.class);
 	
 	@PostConstruct
@@ -41,9 +48,35 @@ public class Application {
 		}
 	}
 	
+	@PreDestroy
+	public void destroy() {
+		Collection<LinkedHashMap<Integer, IClientHandler>> values = Server.sockets.values();
+		for(LinkedHashMap<Integer, IClientHandler> value : values) {
+			Collection<IClientHandler> handlers = value.values();
+			for(IClientHandler handler : handlers) {
+				if(handler instanceof ProxyClient) {
+					continue;
+				}
+				
+				ClientHandler h = (ClientHandler)handler;
+				h.close();
+				
+				try {
+					String data = executor.getLatestData(String.format(StringTemplatesFormats.CLIENT_TEMPLATE, h.getToken(),h.getCode()));
+					DevicoZookeeperInfo info = DevicoZookeeperInfo.castString(data);
+					info.state = false;
+					executor.updateData(String.format(StringTemplatesFormats.CLIENT_TEMPLATE, h.getToken(),h.getCode()), info.toString());
+				} catch (KeeperException | InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	
 	private static Properties getProperties() {
 		Properties properties = new Properties();
-		properties.put("server.port", 8080);
+		properties.put("server.port", 5001);
 		return properties;
 	}
 	
