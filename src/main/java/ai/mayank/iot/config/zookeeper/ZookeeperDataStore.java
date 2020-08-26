@@ -35,7 +35,7 @@ public class ZookeeperDataStore {
 			executor.keeper.addWatch("/ior/server", AddWatchMode.PERSISTENT_RECURSIVE);
 			executor.keeper.addWatch("/ior/clients" ,AddWatchMode.PERSISTENT_RECURSIVE);
 			
-			watcher.setExecutor(executor);	
+			watcher.setExecutor(executor);
 			
 			List<String> servers = executor.listChildren("server");
 			for(String  serverIp : servers) {
@@ -52,7 +52,6 @@ public class ZookeeperDataStore {
 				executor.applyForLeader(Server.getHost());
 			}
 		} catch (KeeperException | InterruptedException | IOException | ConfigException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 		return executor;

@@ -20,7 +20,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import ai.mayank.iot.utils.inter_exchange.InterMessageProtocol;
-
+/*
 @Configuration
 public class KafkaConfig {
 	
@@ -67,3 +67,4 @@ public class KafkaConfig {
     	return consumer;
     }
 }
+*/
