@@ -3,52 +3,27 @@ package ai.mayank.iot.tables;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-
-@Entity
-@Table(name = "socket_vars")
+@Document
 public class SocketVariables {
-	@Column
-	@GeneratedValue(strategy= GenerationType.AUTO)
 	@Id
-	Long id;
-	
-	@OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-	@JoinColumn
+	String id;	
 	Device device;
-   
-	@Column
-	String tempId;
-	
-	@Column
+	@Indexed(unique = true)
+	String tempId;	
 	String token;
-	
-	@Column
 	Integer deviceId;
-	
-	@Column(name = "to_code")
-	Integer to;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "create_time")
+	Integer to;	
 	private Date createDate;
 	
 	public SocketVariables() {
-		
+		createDate = new Date();
+		token = UUID.randomUUID().toString();
 	}
 	
 	public SocketVariables(String token,String tempId,Integer device, Integer to) {
@@ -60,11 +35,11 @@ public class SocketVariables {
 	}
 
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

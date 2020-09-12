@@ -11,6 +11,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.InterruptException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,10 +20,10 @@ import ai.mayank.iot.utils.inter_exchange.InterMessageProtocol;
 
 @Component
 public class Consumer extends Thread{
-	@Autowired
+	@Autowired(required = false)
 	KafkaConsumer<String, InterMessageProtocol> consumer;
 	
-	private org.slf4j.Logger logger = LoggerFactory.getLogger(Consumer.class);
+	private Logger logger = LoggerFactory.getLogger(Consumer.class);
 	
     @PostConstruct
     public void init() {
@@ -38,6 +39,10 @@ public class Consumer extends Thread{
     }
     
     public void run() {
+    	if(consumer == null) {
+    		logger.warn("Couldnot start kafka consumer");
+    		return;
+    	}
     	while(!this.isInterrupted()) {
     		try {
 	    		ConsumerRecords<String, InterMessageProtocol> protocols = consumer.poll(Duration.ofMillis(1000));

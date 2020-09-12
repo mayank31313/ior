@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.corundumstudio.socketio.AckRequest;
@@ -24,36 +25,46 @@ public class SocketIO {
 	public static final String STATUS = "status";
 	private Logger log = Logger.getLogger(SocketIO.class.getName());
 	SocketIOServer server;
+	
+	@Value("${websocket.enable}")
+	private boolean isEnabled;
+	
 	@PostConstruct
 	public void init() {
-		log.info("Starting SocketIO server...");
-		Configuration config = new Configuration();
-        config.setHostname("0.0.0.0");
-        config.setPort(9000);
+		if(isEnabled) {
+			log.info("Starting SocketIO server...");
+			Configuration config = new Configuration();
+	        config.setHostname("0.0.0.0");
+	        config.setPort(9000);
+	
+	        server = new SocketIOServer(config);
+	        server.addConnectListener(new ConnectListener() {
+				
+				@Override
+				public void onConnect(SocketIOClient client) {
+					clientLists.put(client.getSessionId().toString(), client);
+					log.info("Client Connected " + client.getSessionId().toString());
+				}
+			});
+	        
+	        server.addEventListener("chatevent", SocketMessage.class, new DataListener<SocketMessage>() {
+	            @Override
+	            public void onData(SocketIOClient client, SocketMessage data, AckRequest ackRequest) {
+	                // broadcast messages to all clients
+	                server.getBroadcastOperations().sendEvent("chatevent", data);
+	            }
+	        });
 
-        server = new SocketIOServer(config);
-        server.addConnectListener(new ConnectListener() {
-			
-			@Override
-			public void onConnect(SocketIOClient client) {
-				clientLists.put(client.getSessionId().toString(), client);
-				log.info("Client Connected " + client.getSessionId().toString());
-			}
-		});
-        
-        server.addEventListener("chatevent", SocketMessage.class, new DataListener<SocketMessage>() {
-            @Override
-            public void onData(SocketIOClient client, SocketMessage data, AckRequest ackRequest) {
-                // broadcast messages to all clients
-                server.getBroadcastOperations().sendEvent("chatevent", data);
-            }
-        });
-
-        //server.start();
+	        server.start();
+		}else {
+			log.warning("Socket IO Disabled");
+		}
+		
 	}
 	
 	@PreDestroy
 	public void destroy() {
-		//server.stop();
+		if(isEnabled)
+			server.stop();
 	}
 }

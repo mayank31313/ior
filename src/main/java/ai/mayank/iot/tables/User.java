@@ -5,27 +5,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-
-@Entity
-@Table(name = "user")
+@Document
 public class User {
-		@Id
-		@GeneratedValue(strategy= GenerationType.AUTO)
-	   @Column(name="id",updatable=false,nullable=false)
-	   private Long id;
-	   
-		@Column(name="pub_sub_pass")
+	@Id
+	   private String id;
 		private String pubPass;
 		
 		public void setPubPass(String f) {
@@ -37,16 +23,12 @@ public class User {
 			return this.pubPass;
 		}
 		
-		@Column(nullable=false)
-		private Boolean isIFTTT;
-		
-	   @Column(name = "uuid")
+		private Boolean isIFTTT;		
 	   private String uuid;
 	   
-	   @Column(name="auth_key")
 	   private String key;
 	   
-	   @Column(name = "pub_sub")
+	  
 	   private boolean pubsubenabled;
 	   
 	   public void setPubSubEnabled(boolean f) {
@@ -56,58 +38,33 @@ public class User {
 		   return this.pubsubenabled;
 	   }
 	   
-	   	@OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-		@JoinColumn(name="user_id")
 		private Set<EndpointHits> hits;
 		
-	   public Long getId() {
+	   public String getId() {
 		return id;
 	   }
 	
-		public void setId(Long id) {
+		public void setId(String id) {
 			this.id = id;
 		}
 	
-	   @Column(name = "name")
 	   private String name;
-	   
-	   @Column(name = "phone")
 	   private String phone;
-	   
-	   @Column(name = "email")
-	   private String email;
-	   
-	   @Column(name = "password")
-	   private String password;
-	   
-	   @Column(name = "valid")
-	   private boolean isValid = false;
-	   
-	   @Column(name="MaxDevices",nullable = false)
-	   private Integer max = 10;
-	   
-	   @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-	   @JoinColumn(name = "user_id")
-	   private Set<Device> devices = new HashSet<Device>();
-	   
-	   @Column(name="otp")
+	   private String email;	   
+	   private String password;	   
+	   private boolean isValid = false;	  
+	   private Integer max = 10;	   
+	   private Set<Device> devices;
 	   private String otp;
-	   /*
-	   private static PasswordEncoder passwordEncoder;
-	   static {
-		   passwordEncoder = new BCryptPasswordEncoder();
-	   }
-	   */
 	   final static Random rand = new Random();
 	   public User() {
 		   this.pubsubenabled = false;
 	   }
 	   
-	   public User(String name, String password, String email, String phone) {
+	   public User(String name, String email, String phone) {
 	      this.name = name;
 	      this.phone = phone;
 	      this.email = email;
-	      //this.password = passwordEncoder.encode(password);
 	      uuid = UUID.randomUUID().toString();
 	      this.otp = String.valueOf(rand.nextInt(99999));	    
 	      this.isIFTTT = false;
@@ -131,7 +88,7 @@ public class User {
 	   public Set<Device> getDevices() {
 		      return devices;
 	   }
-	   public void setDevices(HashSet<Device> devices) {
+	   public void setDevices(Set<Device> devices) {
 		   this.devices = devices;
 	   }
 	   

@@ -22,22 +22,23 @@ import ai.mayank.iot.Sockets.Devices.TunnelDeviceReceiver;
 import ai.mayank.iot.Sockets.Devices.TunnelDeviceTransmitter;
 import ai.mayank.iot.config.SocketIO;
 import ai.mayank.iot.config.zookeeper.StringTemplatesFormats;
+import ai.mayank.iot.control.NotInitializedException;
 import ai.mayank.iot.control.ZookeeperExecutor;
 import ai.mayank.iot.proxy.DevicoZookeeperInfo;
 import ai.mayank.iot.proxy.ProxyClient;
-import ai.mayank.iot.service.SocketHandlerService;
+import ai.mayank.iot.repos.SocketHandlerRepository;
 import ai.mayank.iot.tables.Device;
 import ai.mayank.iot.tables.SocketVariables;
 import ai.mayank.iot.utils.inter_exchange.SocketMessage;
 
 public class ClientAuthorizer extends Thread{
 	Socket socket;
-	SocketHandlerService service;
+	SocketHandlerRepository service;
 	Logger log = LoggerFactory.getLogger(ClientAuthorizer.class);
 	Environment env;
 	ZookeeperExecutor executor;
 	
-	public ClientAuthorizer(Socket socket,SocketHandlerService service,ZookeeperExecutor executor) {
+	public ClientAuthorizer(Socket socket,SocketHandlerRepository service,ZookeeperExecutor executor) {
 		this.socket = socket;
 		this.service = service;
 		this.executor = executor;
@@ -48,7 +49,8 @@ public class ClientAuthorizer extends Thread{
 		try {
 			BufferedReader buffStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	        String uuid = buffStream.readLine();
-	        variables = service.getVars(uuid);
+	        log.info("Request for Device: " + uuid);
+	        variables = service.findByTempId(uuid).get();
 	        if(variables == null) {
 	        	System.out.println("Terminating Connection: " + socket.getRemoteSocketAddress());
 				socket.getOutputStream().write("Unauthorised Connection".getBytes());
@@ -63,7 +65,7 @@ public class ClientAuthorizer extends Thread{
 
 		IClientHandler client;
 		Device device = variables.getDevice();
-		int deviceId = device.getDeviceType().getId();
+		int deviceId = device.getDeviceType().getDevice_id();
 		LinkedHashMap<Integer, IClientHandler> handlers = Server.sockets.get(variables.getToken());
         
 		if(handlers == null)
@@ -95,6 +97,8 @@ public class ClientAuthorizer extends Thread{
 		} catch (KeeperException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NotInitializedException e) {
+			log.info("Zookeeper Not Initialized, skipping Update");
 		}
         
         boolean isTunnel = client instanceof TunnelDevice;

@@ -3,45 +3,19 @@ package ai.mayank.iot.tables;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "device")
-@NamedQuery(name="getDevicesInfo",query="SELECT COUNT(*) from Device WHERE user=:user")
+@Document
 public class Device {
 	@Id
-	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	@Column(name="deviceId")
+	private String id;
+		
 	private Integer deviceId;
-	
-	@Column(name = "user_id")
-	private Long user;
-	
-	@Column(name = "DeviceName")
-	private String deviceName;
-	
-	@OneToOne(mappedBy = "")
-	@JoinColumn(name = "DeviceType")
+	private String user;
+	private String deviceName;	
 	private SupportedDevices deviceType;
-	
-	@Column(name = "Current_State")
 	private boolean state;
-	
-	@Column(name = "devicePodIP")
 	private String pod;
 	
 	
@@ -58,8 +32,6 @@ public class Device {
 		this.state = state;
 	}
 	
-	@OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-	@JoinColumn(name = "DeviceID")
 	private Set<DeviceElement> elements = new HashSet<>();
 	
 	public Device() {
@@ -77,11 +49,11 @@ public class Device {
 	public void setElements(HashSet<DeviceElement> elem) {
 		this.elements = elem;
 	}
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 	
-	public Long getUser() {
+	public String getUser() {
 		return user;
 	}
 	public String getDeviceName() {
@@ -91,10 +63,10 @@ public class Device {
 		return deviceType;
 	}
 	
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id= id;
 	}
-	public void setUser(Long user) {
+	public void setUser(String user) {
 		this.user = user;
 	}
 	public void setDeviceName(String name) {

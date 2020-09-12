@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import ai.mayank.iot.proxy.ProxyClient;
-import ai.mayank.iot.service.DeviceService;
-import ai.mayank.iot.service.SyncService;
 import ai.mayank.iot.tables.DeviceSync;
 import ai.mayank.iot.utils.inter_exchange.SocketMessage;
 import ai.mayank.iot.utils.inter_exchange.Status;
@@ -28,9 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public class ClientHandler extends Thread implements IClientHandler{ 
-    protected DeviceService service;
-    protected SyncService sync;
-    
+   
     protected Socket socket;
     protected InputStream in_stream;
     protected OutputStream out_stream;
@@ -201,10 +197,6 @@ public class ClientHandler extends Thread implements IClientHandler{
 	public void setTos(List<Integer> ts) {
 		this.tos = ts;
 		this.tos.remove(new Integer(0));
-	}
-	
-	public void setService(DeviceService service) {
-		this.service = service;
 	}
 
 	@Override

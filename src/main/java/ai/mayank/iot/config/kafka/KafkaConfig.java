@@ -11,6 +11,7 @@ import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -20,23 +21,32 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import ai.mayank.iot.utils.inter_exchange.InterMessageProtocol;
-/*
+
 @Configuration
 public class KafkaConfig {
 	
+	@Value(value = "${kafka.enable}")
+	boolean isEnabled;
+	
     @Bean
     public ProducerFactory<String, InterMessageProtocol> producerFactory() {
-    	Map properties = getProperties();
-        properties.put("key.serializer", StringSerializer.class.getName());
-        properties.put("value.serializer", JsonSerializer.class);
-        
-        return new DefaultKafkaProducerFactory<String,InterMessageProtocol>(properties);
+    	if(isEnabled) {
+	    	Map properties = getProperties();
+	        properties.put("key.serializer", StringSerializer.class.getName());
+	        properties.put("value.serializer", JsonSerializer.class);
+	        
+	        return new DefaultKafkaProducerFactory<String,InterMessageProtocol>(properties);
+    	}
+    	return null;
     }
  
     
     @Bean
     public KafkaTemplate<String, InterMessageProtocol> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    	if(isEnabled) {
+    		return new KafkaTemplate<>(producerFactory());
+    	}
+    	return null;
     }
     
 	private HashMap<String,Object> getProperties(){
@@ -52,19 +62,21 @@ public class KafkaConfig {
 	
     @Bean
     public KafkaConsumer<String, InterMessageProtocol> getConsumer(){
-    	Map properties = getProperties();
-    	String groupId = "default";
-    	try {
-			groupId = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	properties.put("group.id",groupId);
-    	KafkaConsumer<String, InterMessageProtocol> consumer  = new KafkaConsumer<String, InterMessageProtocol>(properties,new StringDeserializer(),new JsonDeserializer(InterMessageProtocol.class));
-    	consumer.subscribe(Collections.singleton(ai.mayank.iot.utils.config.kafka.KafkaConfig.TOPIC));
-    	return consumer;
+    	if(isEnabled) {
+	    	Map properties = getProperties();
+	    	String groupId = "default";
+	    	try {
+				groupId = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	
+	    	properties.put("group.id",groupId);
+	    	KafkaConsumer<String, InterMessageProtocol> consumer  = new KafkaConsumer<String, InterMessageProtocol>(properties,new StringDeserializer(),new JsonDeserializer(InterMessageProtocol.class));
+	    	consumer.subscribe(Collections.singleton(ai.mayank.iot.utils.config.kafka.KafkaConfig.TOPIC));
+	    	return consumer;
+    	}
+    	return null;
     }
 }
-*/

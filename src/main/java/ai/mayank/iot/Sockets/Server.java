@@ -23,11 +23,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import ai.mayank.iot.config.zookeeper.StringTemplatesFormats;
+import ai.mayank.iot.control.NotInitializedException;
 import ai.mayank.iot.control.ZookeeperExecutor;
 import ai.mayank.iot.proxy.DevicoZookeeperInfo;
 import ai.mayank.iot.proxy.ProxyClient;
-import ai.mayank.iot.service.SocketHandlerService;
-import ai.mayank.iot.service.SupportedDeviceService;
+import ai.mayank.iot.repos.SocketHandlerRepository;
+import ai.mayank.iot.repos.SupportedDeviceRepository;
 import ai.mayank.iot.tables.SupportedDevices;
 import ai.mayank.iot.tables.SupportedDevices.DeviceType;
 import io.kuzzle.sdk.Kuzzle;
@@ -38,15 +39,15 @@ public class Server implements Runnable{
     //static ConcurrentHashMap<String,IClientHandler> table = new ConcurrentHashMap<>();
     
     @Autowired
-    private SupportedDeviceService suppService;    
+    private SupportedDeviceRepository suppService;    
     @Autowired
-    private SocketHandlerService service;
+    private SocketHandlerRepository service;
     @Autowired
     private ZookeeperExecutor executor;
     @Autowired
     Environment env;
     
-    @Autowired
+    @Autowired(required = false)
     private Kuzzle kuzzle;
     
     
@@ -114,10 +115,8 @@ public class Server implements Runnable{
 		for(DeviceType type : types)
 			devices.add(new SupportedDevices(type));
 		
-		for(SupportedDevices d : devices) {
-			if(suppService.getDevice(d.getId()) == null)
-				suppService.addDevice(d);
-		}
+		suppService.deleteAll();
+		suppService.saveAll(devices);
 		
 		watcherThread = new Thread(new Runnable() {
 			@Override
@@ -156,6 +155,8 @@ public class Server implements Runnable{
 						} catch (KeeperException | InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+						} catch (NotInitializedException e) {
+							log.info("Zookeeper Not Initialized, Skipping update");
 						}
 					}
 					

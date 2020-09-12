@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ai.mayank.iot.Sockets.IClientHandler;
 import ai.mayank.iot.Sockets.Server;
+import ai.mayank.iot.control.NotInitializedException;
 import ai.mayank.iot.control.ZookeeperExecutor;
 import ai.mayank.iot.proxy.DevicoZookeeperInfo;
 import ai.mayank.iot.proxy.ProxyClient;
@@ -44,6 +45,8 @@ public class ServerZookeeperWatcher implements Watcher {
 				} catch (KeeperException | InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (NotInitializedException e) {
+					logger.info("Zookeeper Not Initialized");
 				}
 			}
 			else if(event.getType() == EventType.NodeDeleted) {
@@ -79,8 +82,10 @@ public class ServerZookeeperWatcher implements Watcher {
 				        	Server.sockets.remove(token);
 				        }
 					}
-				} catch (KeeperException | InterruptedException e) {
+				} catch (KeeperException | InterruptedException | NumberFormatException e) {
 					e.printStackTrace();
+				} catch (NotInitializedException e) {
+					logger.info("Zookeeper Not Initialized");
 				}
 			}
 		}
@@ -97,23 +102,30 @@ public class ServerZookeeperWatcher implements Watcher {
 				} catch (KeeperException | InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (NotInitializedException e) {
+					logger.info("Zookeeper Not Initialized");
 				}				
 			}
 		}
 		else if(event.getPath().startsWith("/ior/master")) {
-			if(event.getType() == EventType.NodeDeleted) {
-				executor.applyForLeader(Server.getHost());
-			}
-			else if(event.getType() == EventType.NodeCreated) {
-				List<String> leader_data;
-				try {
-					leader_data = executor.listChildren("master");	
-					String leader = leader_data.get(0);
-					Server.setMasterAddress(leader);
-				} catch (KeeperException | InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			try {
+				if(event.getType() == EventType.NodeDeleted) {
+					executor.applyForLeader(Server.getHost());
 				}
+				else if(event.getType() == EventType.NodeCreated) {
+					List<String> leader_data;
+					try {
+						leader_data = executor.listChildren("master");	
+						String leader = leader_data.get(0);
+						Server.setMasterAddress(leader);
+					} catch (KeeperException | InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			catch(NotInitializedException ex) {
+				logger.info("Zookeeper Not Initialized");
 			}
 		}
 		

@@ -1,21 +1,14 @@
 package ai.mayank.iot.tables;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
-@Entity
-@Table(name="supported_devices")
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
 public class SupportedDevices {
 	@Id
-	@Column(name = "id",unique = true,nullable = false)
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
-	
-	@Column(name = "deviceType")
+	private String id;
+	private Integer device_id;
 	private String deviceType;
 
 	public SupportedDevices() {
@@ -23,18 +16,35 @@ public class SupportedDevices {
 	}
 	
 	public SupportedDevices(DeviceType type) {
-		this.id = type.id;
+		this.device_id = type.id;
 		this.deviceType = type.name();
 	}
 	
-	public int getId() {
+	
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
-	
+
+	public Integer getDevice_id() {
+		return device_id;
+	}
+
+	public void setDevice_id(Integer device_id) {
+		this.device_id = device_id;
+	}
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
 	public String getDeviceName() {
 		return deviceType;
 	}

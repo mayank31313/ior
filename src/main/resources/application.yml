@@ -1,0 +1,15 @@
+server:
+ port: 5001
+
+websocket:
+ enable: false
+ port: 9000
+kuzzle:
+ enable: false
+ port: 7505
+kafka:
+ enable: false
+ port: 31001
+zookeeper:
+ enable: false
+ servers: localhost:2181

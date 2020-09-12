@@ -23,12 +23,12 @@ import ai.mayank.iot.Sockets.ClientHandler;
 import ai.mayank.iot.Sockets.IClientHandler;
 import ai.mayank.iot.Sockets.Server;
 import ai.mayank.iot.config.zookeeper.StringTemplatesFormats;
+import ai.mayank.iot.control.NotInitializedException;
 import ai.mayank.iot.control.ZookeeperExecutor;
 import ai.mayank.iot.proxy.DevicoZookeeperInfo;
 import ai.mayank.iot.proxy.ProxyClient;
 
 
-@EnableAutoConfiguration(exclude = HibernateJpaAutoConfiguration.class)
 @ComponentScan
 @SpringBootApplication
 @Component
@@ -45,6 +45,8 @@ public class Application {
 			logger.info(String.join(",", executor.listChildren("server")));
 		} catch (UnknownHostException | KeeperException | InterruptedException e) {
 			e.printStackTrace();
+		} catch (NotInitializedException e) {
+			logger.info("Zookeeper Not Initialized");
 		}
 	}
 	
@@ -68,6 +70,8 @@ public class Application {
 					executor.updateData(String.format(StringTemplatesFormats.CLIENT_TEMPLATE, h.getToken(),h.getCode()), info.toString());
 				} catch (KeeperException | InterruptedException e) {
 					e.printStackTrace();
+				} catch (NotInitializedException e) {
+					logger.info("Zookeeper Not Initialized");
 				}
 				
 			}
@@ -77,12 +81,18 @@ public class Application {
 	private static Properties getProperties() {
 		Properties properties = new Properties();
 		properties.put("server.port", 5001);
+		
+		properties.put("kuzzle.enable", false);
+		properties.put("kafka.enable", false);
+		properties.put("zookeeper.enable", false);
+		properties.put("websocket.enable", false);
+		
 		return properties;
 	}
 	
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(Application.class);
-		app.setDefaultProperties(getProperties());
+		//app.setDefaultProperties(getProperties());
 		app.run(args);
 		System.out.print("Server Started");
 	}	
