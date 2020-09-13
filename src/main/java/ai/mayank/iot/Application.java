@@ -42,7 +42,7 @@ public class Application {
 	public void init() {
 		try {
 			executor.registerServer(Server.getHost());
-			logger.info(String.join(",", executor.listChildren("server")));
+			logger.info("Servers: " + String.join(",", executor.listChildren("server")));
 		} catch (UnknownHostException | KeeperException | InterruptedException e) {
 			e.printStackTrace();
 		} catch (NotInitializedException e) {
