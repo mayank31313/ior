@@ -9,7 +9,6 @@ import com.mongodb.MongoClientURI;
 
 @Configuration
 public class MongoConfig extends AbstractMongoConfiguration{
-	//"mongodb+srv://ior-admin:IhbPJ6IXoNFqOEfi@ior.y9m2w.gcp.mongodb.net/test"
 	@Value("${mongo.uri}")
 	private String mongo_uri;
 	

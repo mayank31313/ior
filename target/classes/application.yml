@@ -1,7 +1,6 @@
 server:
  port: 5001
-mongo:
- uri: mongodb+srv://ior-admin:IhbPJ6IXoNFqOEfi@ior.y9m2w.gcp.mongodb.net/test
+
 websocket:
  enable: false
  port: 9000

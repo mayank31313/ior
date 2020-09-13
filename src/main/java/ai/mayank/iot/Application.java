@@ -28,7 +28,6 @@ import ai.mayank.iot.control.ZookeeperExecutor;
 import ai.mayank.iot.proxy.DevicoZookeeperInfo;
 import ai.mayank.iot.proxy.ProxyClient;
 
-
 @ComponentScan
 @SpringBootApplication
 @Component
