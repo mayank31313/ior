@@ -1,6 +1,7 @@
 package ai.mayank.iot.controllers;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,14 @@ public class ApiController {
 		return new ResponseEntity<String>("v1.0",HttpStatus.OK);
 	}
 	
+	@GetMapping("/list")
+	public ResponseEntity<List<User>> listUsers(){
+		return new ResponseEntity<List<User>>(userrepo.findAll(),HttpStatus.OK);
+	}
+	
 	@GetMapping("/create/user")
 	public ResponseEntity<User> createUser() {
-		System.out.println("HEy There");
-		User u = new User("Mayank","admin@ior.com","1234567890");
+		User u = new User("Anonymous","anonymous@domain.com","");
 		u.setUuid("5a5a83c3-2588-42fb-84bd-fa3129a2ac45");
 		u.setValid(true);
 		
